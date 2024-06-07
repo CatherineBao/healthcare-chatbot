@@ -57,7 +57,9 @@ function Chat() {
     setProcessing(true);
     let formattedString = `${questionRef.current.message}\nAdditional Information:\n`;
     processingMessage.forEach(item => {
-      formattedString += item.label + ": " + event.target[item.label.replace(/\s+/g, '')].value + "\n";
+      const inputName = item.label.replace(/\s+/g, '');
+      const inputValue = event.target[inputName]?.value || ''; 
+      formattedString += `${item.label}: ${inputValue}\n`;
     });
     const systemContent = "Respond with a literacy that most high school graduates can understand. Please provide a possible diagnosis for the user. Provide any links to sources that you used.";
     handleSend(formattedString, systemContent);
