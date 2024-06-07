@@ -28,7 +28,7 @@ function Chat() {
       position: "single"
     };    
 
-    const systemContent = "If the question is unrelated to health please send $^. Do not provide any introductory comments. What more information would a physician need to diagnose this inquiry? Give the information in a list separated by ^ with the description as the item after the name. For example: Severity of pain: Describe the level of pain you're experiencing, whether it's mild, moderate, or severe. Does the pain increase with movement or pressure?...^ Active Injuries: Please... with no formatting and additional comments.";
+    const systemContent = "If the question is unrelated to health please send $^. Do not provide any introductory comments. What more information would a physician need to diagnose this inquiry? Ask for the age and gender of the user. Give the information in a list separated by ^ with the description as the item after the name. For example: Severity of pain: Describe the level of pain you're experiencing, whether it's mild, moderate, or severe. Does the pain increase with movement or pressure?...^ Active Injuries: Please... with no formatting and additional comments.";
     let returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
     
     if (returnMessage[0] === "$") {
@@ -38,7 +38,7 @@ function Chat() {
       return;
     }
 
-    const individualQuestions = returnMessage.split("^").map(item => {
+    const individualQuestions = returnMessage.split("^").slice(0, -1).map(item => {
       const [label, description] = item.split(":").map(part => part.trim());
       return {
         label,

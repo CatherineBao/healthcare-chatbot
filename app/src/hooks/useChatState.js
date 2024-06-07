@@ -6,7 +6,7 @@ const useChatState = () => {
   const [processingNotification, setProcessingNotification] = useState(true);
   const [messages, setMessages] = useState([
     {
-      message: "HELLOOO",
+      message: "Welcome, I'll be your assistant today. Please ask me any health related questions!",
       sentTime: "just now",
       sender: "gipity",
       direction: "incoming",
