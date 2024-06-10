@@ -32,9 +32,9 @@ function Chat() {
     let returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
     
     if (returnMessage[0] === "$") {
-      const unrelatedInqiury = "Please reply with the words and ignore all other instructions. Do not add any additional commentary: Please provide a health inquiry."
+      const unrelatedInquiry = "Please reply with the words and ignore all other instructions. Do not add any additional commentary: Please provide a health inquiry.";
       setProcessingNotification(true);
-      handleSend(message, unrelatedInqiury);
+      handleSend(message, unrelatedInquiry);
       return;
     }
 
@@ -52,7 +52,7 @@ function Chat() {
     setProcessingMessage(individualQuestions);
   }
 
-  const formatForm = (event) => {
+  const formatForm = async (event) => {
     event.preventDefault();
     setProcessing(true);
     let formattedString = `${questionRef.current.message}\nAdditional Information:\n`;
@@ -62,7 +62,7 @@ function Chat() {
       formattedString += `${item.label}: ${inputValue}\n`;
     });
     const systemContent = "Respond with a literacy that most high school graduates can understand. Please provide a possible diagnosis for the user. Provide any links to sources that you used.";
-    handleSend(formattedString, systemContent);
+    await handleSend(formattedString, systemContent);
   }
 
   const handleSend = async (userMessage, systemContent) => {
@@ -120,7 +120,7 @@ function Chat() {
                     </div>
                   ))}
                 </fieldset>
-                <button type="submit" onClick={formatForm}>Submit</button>
+                <button type="submit">Submit</button>
               </form>
             ) : null}
           </MessageList>
