@@ -1,8 +1,27 @@
+@import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+
+.scrollbar-container {
+  background-color: #F3F7F9 !important;
+}
+
+.cs-message-input {
+  background-color: #F3F7F9 !important;
+  position: sticky !important;
+  padding: 1rem !important;
+  bottom: 0; 
+  z-index: 10; 
+}
+
+.cs-message__content {
+  color: #1B263B !important;
+  background-color: #C0ECFA !important;
+}
+
+.scrollbar-container {
+  max-height: 70vh !important;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
 .logo {

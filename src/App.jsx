@@ -4,7 +4,7 @@ import Chat from './components/ChatUI';
 
 function App() {
   return (
-    <div>
+    <div className='text-left bg-[#1B263B] w-screen'>
       <Chat />
     </div>
   );
