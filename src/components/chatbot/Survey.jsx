@@ -70,25 +70,30 @@ export const handleSend = async (userMessage, systemContent, messages, setMessag
 };
 
 export const renderForm = (question, processingMessage, setProcessingMessage, formatForm) => (
-  <form onSubmit={formatForm}>
-    <fieldset>
-      <legend>{question.message}</legend>
-      {processingMessage.map((item, index) => (
-        <div key={index}>
-          <label>{item.label}: {item.description}</label>
-          <input
-            name={item.label.replace(/\s+/g, '')}
-            type="text"
-            value={item.input}
-            onChange={(e) => {
-              const updatedMessages = [...processingMessage];
-              updatedMessages[index].input = e.target.value;
-              setProcessingMessage(updatedMessages);
-            }}
-          />
-        </div>
-      ))}
-    </fieldset>
-    <button type="submit">Submit</button>
-  </form>
+  <div  className='flex flex-col items-end w-full text-white font-semibold mt-4'>
+    <form onSubmit={formatForm} className='bg-blue rounded-l-lg rounded-t-lg p-2'>
+      <fieldset className='p-3'>
+        <legend>{question.message}</legend>
+        {processingMessage.map((item, index) => (
+          <div key={index}>
+            <label>{item.label}: {item.description}</label>
+            <input
+              className='text-dark-blue'
+              name={item.label.replace(/\s+/g, '')}
+              type="text"
+              value={item.input}
+              onChange={(e) => {
+                const updatedMessages = [...processingMessage];
+                updatedMessages[index].input = e.target.value;
+                setProcessingMessage(updatedMessages);
+              }}
+            />
+          </div>
+        ))}
+      </fieldset>
+      <div className='w-full flex justify-end p-2'>
+        <button type="submit">Next</button>
+      </div>
+    </form>
+  </div>
 );

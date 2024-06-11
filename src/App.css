@@ -2,6 +2,12 @@
 
 .scrollbar-container {
   background-color: #F3F7F9 !important;
+  max-height: 65vh !important;
+}
+
+.cs-message-list {
+  height: 70vh;
+  background-color: #F3F7F9 !important;
 }
 
 .cs-message-input {
@@ -12,13 +18,23 @@
   z-index: 10; 
 }
 
+.cs-message {
+  min-height: 2.5rem !important;
+}
+
 .cs-message__content {
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.cs-message--incoming .cs-message__content {
   color: #1B263B !important;
   background-color: #C0ECFA !important;
 }
 
-.scrollbar-container {
-  max-height: 70vh !important;
+.cs-message--outgoing .cs-message__content {
+  color: #F3F7F9 !important;
+  background-color: #0061A6 !important;
 }
 
 #root {
