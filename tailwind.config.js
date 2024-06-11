@@ -5,6 +5,7 @@ export default {
   ],
   theme: {
     colors : {
+      'gray-blue': '#2F3C53',
       'dark-blue': '#1B263B',
       'blue': '#0061A6',
       'teal': '#34C9D1',
