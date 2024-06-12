@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Chat from './components/chatbot/ChatUI';
 import Footer from './components/navigation/footer';
 
 function App() {
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (isHovered) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [isHovered]);
+
   return (
     <div className='text-left bg-dark-blue'>
       <div className='flex pl-14'>
@@ -15,7 +25,11 @@ function App() {
             <div className='h-14 w-48 rounded-full bg-blue mt-5'></div>
           </div>
         </div>
-        <Chat />
+        <div className='w-full'        
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}>
+            <Chat />
+        </div>
       </div>
       <Footer />
     </div>

@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+    html {
+        scrollbar-color: #1f2642 #010D1A;
+        scrollbar-width: none;
+    }
+  }

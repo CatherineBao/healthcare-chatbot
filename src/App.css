@@ -3,11 +3,13 @@
 .scrollbar-container {
   background-color: #F3F7F9 !important;
   max-height: 65vh !important;
+  overscroll-behavior: contain;
 }
 
 .cs-message-list {
   height: 70vh;
   background-color: #F3F7F9 !important;
+  padding-bottom: 2rem;
 }
 
 .cs-message-input {
