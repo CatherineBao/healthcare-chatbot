@@ -3,10 +3,9 @@ import '../../index.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator, InputToolbox } from '@chatscope/chat-ui-kit-react';
 import useChatState from '../../hooks/useChatState';
 import { useEffect, useRef } from 'react';
-import { handleProcessing, handleSend } from './survey/Processing';
+import { handleProcessing, formatForm, handleSend, renderForm } from './survey/Survey';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
-import { SurveyComponent } from "./survey/Survey"; // Correct import
 
 function Chat() {
   const {
@@ -65,10 +64,7 @@ function Chat() {
               return <Message key={i} model={message} />
             })}
             {!processing ? (
-              <SurveyComponent 
-                question = {question}
-                processingMessage = {processingMessage}
-              />
+              renderForm(question, processingMessage, setProcessingMessage, (e) => formatForm(e, setProcessing, questionRef, processingMessage, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping)))
             ) : null}
             {!processingNotification ? (
               <div className='sticky bottom-0 w-full bg-white text-blue flex justify-end'>
