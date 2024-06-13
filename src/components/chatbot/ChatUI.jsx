@@ -1,9 +1,11 @@
 import '../../App.css';
 import '../../index.css';
-import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator, InputToolbox } from '@chatscope/chat-ui-kit-react';
 import useChatState from '../../hooks/useChatState';
-import { handleProcessing, formatForm, handleSend, renderForm } from './Survey';
 import { useEffect, useRef } from 'react';
+import { handleProcessing, formatForm, handleSend, renderForm } from './Survey';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 
 function Chat() {
   const {
@@ -13,8 +15,28 @@ function Chat() {
     messages, setMessages,
     processingMessage, setProcessingMessage,
     question, setQuestion,
-    questionRef
+    questionRef,
+    isHovered, setIsHovered
   } = useChatState();
+
+  function scrollToBottom() {
+      const scrollableDiv = document.querySelector('.cs-message-list__scroll-wrapper');
+      if (scrollableDiv) {
+        scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
+      }
+  }
+
+  useEffect(() => {
+    if (isHovered) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [isHovered]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <div className='w-full flex flex-col items-end mb-10 p-10'>
@@ -25,6 +47,8 @@ function Chat() {
       <MainContainer className='w-full bg-white mb-8 rounded-b-lg p-5 h-[75vh]'>
         <ChatContainer className='bg-white'>
           <MessageList
+            onMouseEnter={() => setIsHovered(true)} 
+            onMouseLeave={() => setIsHovered(false)}
             scrollBehavior="smooth"
             typingIndicator={typing ? 
               <TypingIndicator 
@@ -39,17 +63,24 @@ function Chat() {
             {messages.map((message, i) => {
               return <Message key={i} model={message} />
             })}
-            
             {!processing ? (
               renderForm(question, processingMessage, setProcessingMessage, (e) => formatForm(e, setProcessing, questionRef, processingMessage, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping)))
             ) : null}
             {!processingNotification ? (
-              <div>
+              <div className='sticky bottom-0 w-full bg-white text-blue flex justify-end'>
                 <p>Processing input...</p>
               </div>
             ) : null}
           </MessageList>
-          <MessageInput placeholder="Type message here" onSend={(message) => handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, questionRef, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)} />
+          <InputToolbox className='flex justify-center items-center m-5'>
+            <MessageInput 
+                className='w-full gap-5 justify-center items-center'
+                placeholder="Type message here" 
+                onSend={(message) => handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, questionRef, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)} 
+                attachButton={false}
+              />
+              <FontAwesomeIcon icon={faCaretDown} className='text-blue cursor-pointer' onClick={scrollToBottom}/>
+          </InputToolbox>
         </ChatContainer>
       </MainContainer>
     </div>
