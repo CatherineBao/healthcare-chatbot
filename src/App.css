@@ -7,6 +7,8 @@
 }
 
 .cs-message-input {
+  max-width: 100% !important;
+  width: 100% !important;
 }
 
 .cs-input-toolbox {

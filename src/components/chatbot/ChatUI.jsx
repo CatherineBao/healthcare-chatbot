@@ -3,7 +3,7 @@ import '../../index.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator, InputToolbox } from '@chatscope/chat-ui-kit-react';
 import useChatState from '../../hooks/useChatState';
 import { useEffect, useRef } from 'react';
-import { handleProcessing, formatForm, handleSend, renderForm } from './Survey';
+import { handleProcessing, formatForm, handleSend, renderForm } from './survey/Survey';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 

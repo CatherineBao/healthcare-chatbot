@@ -1,4 +1,4 @@
-import { processMessageToChatGPT } from './GPTChatProcessor';
+import { processMessageToChatGPT } from '../GPTChatProcessor';
 
 export const handleProcessing = async (message, setProcessingNotification, setProcessing, setQuestion, questionRef, handleSend, setProcessingMessage) => {
   setProcessingNotification(false);
@@ -47,8 +47,7 @@ Notes:\n
     return;
   }
 
-
-  const individualQuestions = returnMessage.split("^").slice(0, -1).map(item => {
+  const individualQuestions = returnMessage.split("^").map(item => {
     const [label, description] = item.split(":").map(part => part.trim());
     return {
       label,
