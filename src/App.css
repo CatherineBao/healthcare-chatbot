@@ -6,6 +6,13 @@
   overscroll-behavior: contain;
 }
 
+.cs-message-input {
+}
+
+.cs-input-toolbox {
+  background-color: #F3F7F9 !important;
+}
+
 .cs-message-list {
   height: 70vh;
   background-color: #F3F7F9 !important;

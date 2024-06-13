@@ -27,6 +27,8 @@ const useChatState = () => {
     questionRef.current = question;
   }, [question]);
 
+  const [isHovered, setIsHovered] = useState(false);
+
   return {
     typing,
     setTyping,
@@ -40,7 +42,9 @@ const useChatState = () => {
     setProcessingMessage,
     question,
     setQuestion,
-    questionRef
+    questionRef,
+    isHovered,
+    setIsHovered
   };
 };
 
