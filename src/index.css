@@ -8,3 +8,22 @@
         scrollbar-width: none;
     }
   }
+
+textarea::-webkit-scrollbar {
+    scrollbar-width: thin;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: #34C9D1; 
+    border-radius: 25px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background-color: #F3F7F9; 
+}
+
+/* For Firefox */
+textarea {
+    scrollbar-width: thin; 
+    scrollbar-color: #34C9D1 #F3F7F9; 
+}
