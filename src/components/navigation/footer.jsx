@@ -3,7 +3,7 @@ import '../../index.css';
 
 function Footer() {
   return (
-    <div className='w-full bg-white h-96'>
+    <div className='w-full bg-white h-48'>
     </div>
   );
 }

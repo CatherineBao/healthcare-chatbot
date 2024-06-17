@@ -15,15 +15,27 @@ export const handleProcessing = async (message, setProcessingNotification, setPr
   const systemContent = `
 Create a list of additional information, questions, or symptoms that a doctor will ask about to create a more accurate diagnosis.  
 These additional questions will be referred to as topics. Each topic will be followed by a short explanation elaborating on the details 
-as needed. These explanations will be referred to as descriptions.\n
+as needed. These explanations will be referred to as descriptions. Don't have any additional formatting such as bullet points or numbering.
+Having more topics is better than less (aim for 5). Try to make the questions shorter and more consice so it's easier to answer. 
+Do not put a ^ after the last topic. 
 \n
-Respond with only one of the following: \n
-1. If the question is related to diagnoses (mental health indications (sadness, depression, anxiety, etc.) should be considered for diagnoses): \n
+Formatting and Content Examples:\n
+Q: I got a cut a few weeks ago and it hasn’t healed yet recently it started hurting more than usual and it looks red on the outside. Should I be concerned?\n
+A: Redness in the area of the wound: Is the redness spreading or forming a red streak? Can you describe the appearance of the redness?^Condition of the wound: Is there swelling, warmth, pain, or tenderness in the area of the cut?^Pus: Is there any pus forming around or oozing from the wound?^Lymph nodes: Do you have swollen lymph nodes in the neck, armpit, or groin?^Other Symptoms: Do you have a fever or other new developments to note?\n
+\n
+Q: Hello, what is the weather like today?\n
+A: $^ \n
+\n
+Q: Are there safety concerns or special precautions about Acetaminophen?\n
+A: %^ \n
+\n
+Respond with only one of the following:\n
+1. If the question is related to diagnoses (mental health indications (sadness, depression, anxiety) should be considered for diagnoses). Ask for at least 5 topics and DO NOT put a ^ at the end of the message:\n
 topic:description^topic:description\n
-Example:  Location of pain:Is the pain in one knee or both knees?^Previous injuries:Have you had any previous injuries to your knees?\n
+Example:  Location of pain: Is the pain in one knee or both knees?^Previous injuries:Have you had any previous injuries to your knees?\n
+2. If the question is unrelated to diagnoses but is related to healthcare please respond with: %^ \n
+3. If the question is unrelated to healthcare please respond with $^ \n
 \n
-2. If the question is unrelated to diagnoses but is related to healthcare please respond with or it's a health condition where immediate attention is required: %^ \n
-3. If the question is unrelated to healthcare please respond with $^
 Notes:\n
 1. Don’t include any additional commentary or formatting outside of specifications.\n
 2. Don’t include points that were already stated in the original question.\n
@@ -64,6 +76,32 @@ Notes:\n
 export const formatForm = async (event, setProcessing, questionRef, processingMessage, handleSend) => {
   event.preventDefault();
   setProcessing(true);
+
+  // COME BACK TO THIS LATER:
+  // const highlightInformation = `
+  // Go through the question and put ^^ around all components of the question that could give information and hints for a diagnosis such as statistics about duration of symptoms, blood pressure, weight, height, gender, symptoms, etc. Keep all of the original text and don't add additional formatting such as bullet points:
+  // \n
+  // Example: \n
+  // Q: I am a 57yo male 62 154 lbs. I have been without insurance for 2.5 years now. I have been out of my blood pressure medicine for 2 years now. My blood pressure runs around 200/105. 2 years ago I took an international flight. When i got off of a 12 hour flight my left calf stopped working. If I walk at my normal pace I can only make it about Then I spent another 24 hours or so in the back seat of a Toyota high ace van. which has even less room to move.If I walk at my normal pace I can only make it about 30 yards before it starts to feel swollen and tight and then the pain starts. Now after 2 years of not being able to walk both of my legs hurt all the time and I can barely walk for the first 2 hours of the day. I have a customer where I work, She is a nutritionist. She says that I am "severely malnourished" I suspect that I won"t make it to Christmas. Any Ideas?
+  // \nA:I am a ^^57yo male 62 154 lbs^^. I have been without insurance for 2.5 years now. I have been ^^out of my blood pressure medicine for 
+  // 2 years now^^. My ^^blood pressure runs around 200/105^^. 2 years ago I took an international flight. When i got off of a 12 hour flight 
+  // ^^my left calf stopped working^^. If I walk at my normal pace I can only make it about Then I spent another 24 hours or so in the back 
+  // seat of a Toyota high ace van. which has even less room to move.If I walk at my normal pace ^^I can only make it about 30 yards before 
+  // it starts to feel swollen and tight and then the pain starts^^. Now after ^^2 years of not being able to walk^^ both of my legs hurt all 
+  // the time and I can barely walk for the first 2 hours of the day. I have a customer where I work, She is a nutritionist. She says that 
+  // ^^I am "severely malnourished"^^ I suspect that I won"t make it to Christmas. Any Ideas?
+  // `;
+  
+  // const newMessage = {
+  //   message: `${questionRef.current.message}`,
+  //   direction: 'outgoing',
+  //   sender: "user",
+  //   position: "single"
+  // };
+
+  // const highlightedQuestion = await processMessageToChatGPT([newMessage], highlightInformation, false);
+  // let formattedString = `${highlightedQuestion}\nAdditional Information:\n`;
+
   let formattedString = `${questionRef.current.message}\nAdditional Information:\n`;
   
   for (let i = 0; i < processingMessage.length; i++) {

@@ -72,20 +72,29 @@ function Chat() {
                 formatForm = {(e) => formatForm(e, setProcessing, questionRef, processingMessage, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping))}
               />
             ) : null}
-            {!processingNotification ? (
-              <div className='sticky bottom-0 w-full bg-white text-blue flex justify-end'>
-                <p>Processing input...</p>
-              </div>
-            ) : null}
           </MessageList>
-          <InputToolbox className='flex justify-center items-center m-5'>
-            <MessageInput 
+          <InputToolbox className='flex flex-col justify-center items-start m-5'>
+            <div>
+              {!processingNotification ? (
+                <div className='sticky bottom-0 w-full bg-white text-blue flex justify-start mb-5'>
+                  <p>Processing input...</p>
+                </div>
+              ) : null}
+              {typing ? (
+                <div className='sticky bottom-0 w-full bg-white text-blue flex justify-start mb-5'>
+                  <p>Gipity is typing...</p>
+                </div>
+              ) : null}
+            </div>
+            <div className='flex justify-center items-center w-full'>
+              <MessageInput 
                 className='w-full gap-5 justify-center items-center'
                 placeholder="Type message here" 
                 onSend={(message) => handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, questionRef, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)} 
                 attachButton={false}
               />
               <FontAwesomeIcon icon={faCaretDown} className='text-blue cursor-pointer' onClick={scrollToBottom}/>
+            </div>
           </InputToolbox>
         </ChatContainer>
       </MainContainer>
