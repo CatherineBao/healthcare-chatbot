@@ -29,22 +29,20 @@ const useChatState = () => {
 
   const [isHovered, setIsHovered] = useState(false);
 
+  const [personalInfo, setPersonalInfo] = useState([]);
+  const [chatHistory, setChatHistory] = useState("");
+
   return {
-    typing,
-    setTyping,
-    processing,
-    setProcessing,
-    processingNotification,
-    setProcessingNotification,
-    messages,
-    setMessages,
-    processingMessage,
-    setProcessingMessage,
-    question,
-    setQuestion,
+    typing, setTyping,
+    processing, setProcessing,
+    processingNotification, setProcessingNotification,
+    messages, setMessages,
+    processingMessage, setProcessingMessage,
+    question, setQuestion,
     questionRef,
-    isHovered,
-    setIsHovered
+    isHovered, setIsHovered,
+    personalInfo, setPersonalInfo,
+    chatHistory, setChatHistory
   };
 };
 

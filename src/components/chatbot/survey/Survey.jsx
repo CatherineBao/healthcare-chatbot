@@ -18,7 +18,7 @@ function HealthForm({ question, processingMessage, setProcessingMessage, formatF
   }
 
   return (
-    <div className='flex flex-col items-end w-full text-white font-semibold mt-4 text-sm mb-8'>
+    <div className='flex flex-col items-end w-full text-white font-semibold mt-4 text-sm mb-8 w-4/5'>
       <h1 className='bg-blue rounded-l-lg rounded-t-lg p-3'>{question.message}</h1>
       <form 
       onSubmit={(e) => formatForm(e)}

@@ -1,12 +1,12 @@
-import '../../App.css';
-import '../../index.css';
+import React, { useEffect } from 'react';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator, InputToolbox } from '@chatscope/chat-ui-kit-react';
-import useChatState from '../../hooks/useChatState';
-import { useEffect, useRef } from 'react';
+import { useChatContext } from '../../components/ChatContext';
 import { handleProcessing, formatForm, handleSend } from './survey/Processing';
 import HealthForm from './survey/Survey';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import '../../App.css';
+import '../../index.css';
 
 function Chat() {
   const {
@@ -17,14 +17,16 @@ function Chat() {
     processingMessage, setProcessingMessage,
     question, setQuestion,
     questionRef,
-    isHovered, setIsHovered
-  } = useChatState();
+    isHovered, setIsHovered,
+    personalInfo, setPersonalInfo,
+    chatHistory, setChatHistory
+  } = useChatContext();
 
   function scrollToBottom() {
-      const scrollableDiv = document.querySelector('.cs-message-list__scroll-wrapper');
-      if (scrollableDiv) {
-        scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
-      }
+    const scrollableDiv = document.querySelector('.cs-message-list__scroll-wrapper');
+    if (scrollableDiv) {
+      scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
+    }
   }
 
   useEffect(() => {
@@ -48,29 +50,35 @@ function Chat() {
       <MainContainer className='w-full bg-white mb-8 rounded-b-lg p-5 h-[75vh]'>
         <ChatContainer className='bg-white'>
           <MessageList
-            onMouseEnter={() => setIsHovered(true)} 
+            onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             scrollBehavior="smooth"
             typingIndicator={typing ? 
               <TypingIndicator 
-              content="Gipity is typing" 
-              style={{
-                backgroundColor: "#F3F7F9",
-                position: 'sticky',
-                bottom: 0
-              }}
+                content="Gipity is typing" 
+                style={{
+                  backgroundColor: "#F3F7F9",
+                  position: 'sticky',
+                  bottom: 0
+                }}
               /> 
-            : null}>
+              : null
+            }>
             {messages.map((message, i) => {
               return <Message key={i} model={message} />
             })}
             {!processing ? (
-              <HealthForm
-                question = {question}
-                processingMessage = {processingMessage}
-                setProcessingMessage = {setProcessingMessage}
-                formatForm = {(e) => formatForm(e, setProcessing, questionRef, processingMessage, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping))}
-              />
+              <div className='w-full flex justify-end pr-5'>
+                <HealthForm
+                  question={question}
+                  processingMessage={processingMessage}
+                  setProcessingMessage={setProcessingMessage}
+                  formatForm={(e) => 
+                    formatForm(e, setProcessing, questionRef, processingMessage, 
+                      (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), 
+                      setPersonalInfo, chatHistory, setChatHistory, personalInfo)}
+                />
+              </div>
             ) : null}
           </MessageList>
           <InputToolbox className='flex flex-col justify-center items-start m-5'>
@@ -90,7 +98,9 @@ function Chat() {
               <MessageInput 
                 className='w-full gap-5 justify-center items-center'
                 placeholder="Type message here" 
-                onSend={(message) => handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, questionRef, (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)} 
+                onSend={(message) => 
+                  handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, questionRef, 
+                    (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)} 
                 attachButton={false}
               />
               <FontAwesomeIcon icon={faCaretDown} className='text-blue cursor-pointer' onClick={scrollToBottom}/>
