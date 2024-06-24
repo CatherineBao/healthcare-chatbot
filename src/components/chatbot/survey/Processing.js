@@ -13,10 +13,10 @@ export const handleProcessing = async (message, setProcessingNotification, setPr
   };
 
   const systemContent = `
-    Create a list of additional information, questions, or symptoms that a doctor will ask about to create a more accurate diagnosis (such as age, gender, race, and other symptoms as relavent).  
+    Create a list of additional information, questions, or symptoms that a doctor will ask about to create a more accurate diagnosis (such as age, gender, race, and other symptoms as relevant).  
     These additional questions will be referred to as topics. Each topic will be followed by a short explanation elaborating on the details 
     as needed. These explanations will be referred to as descriptions. Don't have any additional formatting such as bullet points or numbering.
-    Having more topics is better than less (aim for 5). Try to make the questions shorter and more consice so it's easier to answer. 
+    Having more topics is better than less (aim for 5). Try to make the questions shorter and more concise so it's easier to answer. 
     Do not put a ^ after the last topic. 
     \n
     Formatting and Content Examples:\n
@@ -33,9 +33,9 @@ export const handleProcessing = async (message, setProcessingNotification, setPr
     1. If the question is related to diagnoses (mental health indications (sadness, depression, anxiety) should be considered for diagnoses). Ask for at least 5 topics and DO NOT put a ^ at the end of the message:\n
     topic:description^topic:description\n
     Example:  Location of pain: Is the pain in one knee or both knees?^Previous injuries:Have you had any previous injuries to your knees?\n
-    2. If the question is unrelated to diagnoses but is related to healthcare OR (IMPORTANT) if the diagnoses inquiry is life treatenting/high risk (suicide related, symptoms indicating a heart attack, symptoms that require poisen control, symptoms indicating a stroke etc.) please respond with: %^ \n
+    2. If the question is unrelated to diagnoses but is related to healthcare OR (IMPORTANT) if the diagnoses inquiry is life threatening/high risk (suicide related, symptoms indicating a heart attack, symptoms that require poison control, symptoms indicating a stroke etc.) please respond with: %^ \n
     3. If the question is unrelated to healthcare please respond with $^ \n
-    4. (IMPORTANT) if the diagnoses inquiry is life treatenting/high risk (suicide related, symptoms indicating a heart attack, symptoms that require poisen control, symptoms indicating a stroke etc.) please respond with: %^ \n
+    4. (IMPORTANT) if the diagnoses inquiry is life threatening/high risk (suicide related, symptoms indicating a heart attack, symptoms that require poison control, symptoms indicating a stroke etc.) please respond with: %^ \n
     \n
     Notes:\n
     1. Don’t include any additional commentary or formatting outside of specifications.\n
@@ -43,32 +43,39 @@ export const handleProcessing = async (message, setProcessingNotification, setPr
     3. Ask about basic personal information such as age, gender, weight, and race if it applies to the question.\n
 `;
 
-  let returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
+  try {
+    const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
 
-  if (returnMessage[0] === "$") {
-    const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";    setProcessingNotification(true);
-    handleSend(message, unrelatedInquiry);
-    return;
-  }
-  else if (returnMessage[0] === "%") {
-    const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poisen, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
+    if (returnMessage[0] === "$") {
+      const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
+      setProcessingNotification(true);
+      handleSend(message, unrelatedInquiry);
+      return;
+    }
+    else if (returnMessage[0] === "%") {
+      const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poison, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
+      setProcessingNotification(true);
+      handleSend(message, nondiagnosesInquiry);
+      return;
+    }
+
+    const individualQuestions = returnMessage.split("^").map(item => {
+      const [label, description] = item.split(":");
+      return {
+        label: label.trim(),
+        description: description.trim(),
+        input: ""
+      };
+    });
+
     setProcessingNotification(true);
-    handleSend(message, nondiagnosesInquiry);
-    return;
+    setProcessing(false);
+    setProcessingMessage(individualQuestions);
+  } catch (error) {
+    console.error("Error processing message:", error);
+    setProcessingNotification(true);
+    setProcessing(false);
   }
-
-  const individualQuestions = returnMessage.split("^").map(item => {
-    const [label, description] = item.split(":").map(part => part.trim());
-    return {
-      label,
-      description,
-      input: ""
-    };
-  });
-
-  setProcessingNotification(true);
-  setProcessing(false);
-  setProcessingMessage(individualQuestions);
 };
 
 export const formatForm = async (event, setProcessing, questionRef, processingMessage, handleSend, setPersonalInfo, chatHistory, setChatHistory) => {
@@ -77,10 +84,14 @@ export const formatForm = async (event, setProcessing, questionRef, processingMe
 
   let formattedString = `${questionRef.current.message}\nAdditional Information:\n`;
   
-  for (let i = 0; i < processingMessage.length; i++) {
-    const inputValue = processingMessage[i].input || ''; // Access the item property directly
-    formattedString += `${processingMessage[i].description}: ${inputValue}\n`;
-  }
+  processingMessage.forEach(({ description, input = '' }) => {
+    formattedString += `${description}: ${input}\n`;
+  });
+
+  chatHistory += formattedString;
+  setChatHistory(chatHistory);
+
+  await checkForPersonalInformation(chatHistory, setPersonalInfo);
 
   const systemContent = `
     Using specific information from the user, please provide the following information:\n
@@ -144,10 +155,6 @@ export const formatForm = async (event, setProcessing, questionRef, processingMe
   `;
 
   await handleSend(formattedString, systemContent);
-
-  chatHistory += formattedString;
-  setChatHistory(chatHistory);
-  await checkForPersonalInformation(chatHistory, setPersonalInfo);
 };
 
 export const handleSend = async (userMessage, systemContent, messages, setMessages, setTyping) => {
@@ -164,11 +171,14 @@ export const handleSend = async (userMessage, systemContent, messages, setMessag
   setMessages(prevMessages => [...prevMessages, newMessage]);
 
   setTyping(true);
-  const assistantMessage = await processMessageToChatGPT(newMessages, systemContent, appendAndPost);
-
-  setMessages(prevMessages => [...prevMessages, assistantMessage]);
-
-  setTyping(false);
+  try {
+    const assistantMessage = await processMessageToChatGPT(newMessages, systemContent, appendAndPost);
+    setMessages(prevMessages => [...prevMessages, assistantMessage]);
+  } catch (error) {
+    console.error("Error sending message:", error);
+  } finally {
+    setTyping(false);
+  }
 };
 
 export async function checkForPersonalInformation(chatHistory, setPersonalInfo) {
@@ -182,10 +192,10 @@ export async function checkForPersonalInformation(chatHistory, setPersonalInfo) 
     Medical History - Procedures, Immunizations, Allergies, Chronic Illnesses, Medications, Previous Diagnoses, etc. \n
     \n
     Return the information in the following format: \n
-    Basic Identifying Information*Age-16*Race/Ethnicity-Asain*Gender-F:Basic Health Stats: Blood Pressure-120/80*Body Temperature-98c\n
+    Basic Identifying Information*Age-16*Race/Ethnicity-Asian*Gender-F:Basic Health Stats: Blood Pressure-120/80*Body Temperature-98c\n
     Example: \n
     Q: I am a 57yo male 62 154 lbs. I have been without insurance for 2.5 years now. I have been out of my blood pressure medicine for 2 years now. My blood pressure runs around 200/105. 2 years ago I took an international flight. When i got off of a 12 hour flight my left calf stopped working. If I walk at my normal pace I can only make it about Then I spent another 24 hours or so in the back seat of a Toyota high ace van. which has even less room to move.If I walk at my normal pace I can only make it about 30 yards before it starts to feel swollen and tight and then the pain starts. Now after 2 years of not being able to walk both of my legs hurt all the time and I can barely walk for the first 2 hours of the day. I have a customer where I work, She is a nutritionist. She says that I am "severely malnourished" I suspect that I won"t make it to Christmas. Any Ideas?\n
-    A: Basic Identifying Informationa*Age-57*Gender-M*Weight-154lb:Basic Health Stats:Blood Pressure-200/105:Life Style* Can barely walk for the first 2 hours of the day:Medical History*Severely Malnourished
+    A: Basic Identifying Information*Age-57*Gender-M*Weight-154lb:Basic Health Stats:Blood Pressure-200/105:Life Style* Can barely walk for the first 2 hours of the day:Medical History*Severely Malnourished
   `;
 
   const newMessage = {
@@ -195,17 +205,19 @@ export async function checkForPersonalInformation(chatHistory, setPersonalInfo) 
     position: "single"
   };
 
-  const updatedPersonalInfo = await processMessageToChatGPT([newMessage], systemContent, false);
+  try {
+    const updatedPersonalInfo = await processMessageToChatGPT([newMessage], systemContent, false);
 
-  const parts = updatedPersonalInfo.split(':');
-  const personalInfoArray = parts.map(part => {
-    const info = part.split('*'); 
-    const Info = info.slice(1);
-    return {
-      Topic: info[0],
-      Info: Info
-    };
-  });
+    const personalInfoArray = updatedPersonalInfo.split(':').map(part => {
+      const [topic, ...info] = part.split('*');
+      return {
+        Topic: topic,
+        Info: info
+      };
+    });
 
-  setPersonalInfo(personalInfoArray);
+    setPersonalInfo(personalInfoArray);
+  } catch (error) {
+    console.error("Error checking personal information:", error);
+  }
 }

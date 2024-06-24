@@ -3,26 +3,16 @@
 const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 export const processMessageToChatGPT = async (chatMessages, systemContent, appendAndPost) => {
     
-  let apiMessages = chatMessages.map((messageObject) => {
-    let role = "";
-    if (messageObject.sender === "gipity") {
-      role = "assistant";
-    } else {
-      role = "user";
-    }
-    return { role: role, content: messageObject.message }
-  });
-
-  const systemMessage = {
-    role: "system",
-    content: systemContent
-  };
+  const apiMessages = chatMessages.map(({ sender, message }) => ({
+    role: sender === "gipity" ? "assistant" : "user",
+    content: message
+  }));
 
   const apiRequestBody = {
-    "model": "gpt-3.5-turbo",
-    "messages": [
-      systemMessage,  
-      ...apiMessages 
+    model: "gpt-3.5-turbo",
+    messages: [
+      { role: "system", content: systemContent },
+      ...apiMessages
     ]
   };
 
@@ -36,16 +26,13 @@ export const processMessageToChatGPT = async (chatMessages, systemContent, appen
   });
 
   const data = await response.json();
+  const assistantContent = data.choices[0].message.content;
   const assistantMessage = {
-    message: data.choices[0].message.content,
+    message: assistantContent,
     sender: "gipity",
     direction: "incoming",
     position: "single"
   };
 
-  if (appendAndPost) {
-    return assistantMessage;
-  } else {
-    return data.choices[0].message.content;
-  }
+  return appendAndPost ? assistantMessage : assistantContent;
 }
