@@ -4,7 +4,7 @@ import { useChatContext } from '../../components/ChatContext';
 import { handleProcessing, formatForm, handleSend } from './survey/Processing';
 import HealthForm from './survey/Survey';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faRobot } from "@fortawesome/free-solid-svg-icons";
 import '../../App.css';
 import '../../index.css';
 
@@ -44,8 +44,8 @@ function Chat() {
   return (
     <div className='w-full flex flex-col items-end mb-10 p-10'>
       <div className='w-full flex bg-white h-12 rounded-t-lg items-center p-3 gap-3'>
-        <div className='w-6 h-6 bg-blue rounded-full'/>
-        <h1>Name goes here</h1>
+        <FontAwesomeIcon icon={faRobot} className='w-6 h-6 text-blue' />
+        <h1>Dr. Gipity</h1>
       </div>
       <MainContainer className='w-full bg-white mb-8 rounded-b-lg p-5 h-[75vh]'>
         <ChatContainer className='bg-white'>

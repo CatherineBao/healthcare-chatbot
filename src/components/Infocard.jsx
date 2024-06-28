@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatContext } from './ChatContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileExport } from "@fortawesome/free-solid-svg-icons";
+import { faFileExport, faUser } from "@fortawesome/free-solid-svg-icons";
 import '../App.css';
 import '../index.css';
 
@@ -15,7 +15,7 @@ function InfoCard() {
         <div className='text-blue w-full'>
           <div className='flex items-center justify-between w-full'>
             <div className='flex gap-3'>
-              <div className='w-7 h-7 bg-blue rounded-full'/>
+            <FontAwesomeIcon icon={faUser} className='w-7 h-7 text-blue'/>
               <h1 className='font-bold'>Patient Information</h1>
             </div>
             <FontAwesomeIcon icon={faFileExport} className='text-blue cursor-pointer'/>
@@ -29,7 +29,6 @@ function InfoCard() {
                 ))}
               </div>
             ))}
-            {console.log(personalInfo)}
           </div>
         </div>
       </div>
