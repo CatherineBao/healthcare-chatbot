@@ -74,7 +74,7 @@ function Chat() {
                   processingMessage={processingMessage}
                   setProcessingMessage={setProcessingMessage}
                   formatForm={(e) => 
-                    formatForm(e, setProcessing, questionRef, processingMessage, 
+                    formatForm(e, setProcessing, question, processingMessage, 
                       (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), 
                       setPersonalInfo, chatHistory, setChatHistory, personalInfo)}
                 />
@@ -98,9 +98,11 @@ function Chat() {
               <MessageInput 
                 className='w-full gap-5 justify-center items-center'
                 placeholder="Type message here" 
-                onSend={(message) => 
-                  handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, questionRef, 
-                    (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)} 
+                onSend={(message) => {
+                  message = message.replace(/<[^>]*>/g, '');
+                  handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, 
+                    (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage);} 
+                  }
                 attachButton={false}
               />
               <FontAwesomeIcon icon={faCaretDown} className='text-blue cursor-pointer' onClick={scrollToBottom}/>

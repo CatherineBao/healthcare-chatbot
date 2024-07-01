@@ -1,9 +1,9 @@
 import { processMessageToChatGPT } from '../GPTChatProcessor';
 
-export const handleProcessing = async (message, setProcessingNotification, setProcessing, setQuestion, questionRef, handleSend, setProcessingMessage) => {
+export const handleProcessing = async (message, setProcessingNotification, setProcessing, setQuestion, handleSend, setProcessingMessage) => {
   setProcessingNotification(false);
   setProcessing(true);
-  setQuestion({ ...questionRef.current, message: message });
+  setQuestion(message);
 
   const newMessage = {
     message,
@@ -65,7 +65,7 @@ Don't ask for information the user has already provided.
       handleSend(message, nondiagnosesInquiry);
       return;
     }
-
+    
     const individualQuestions = returnMessage.split("^").map(item => {
       const [label, description] = item.split(":");
       return {
@@ -85,11 +85,11 @@ Don't ask for information the user has already provided.
   }
 };
 
-export const formatForm = async (event, setProcessing, questionRef, processingMessage, handleSend, setPersonalInfo, chatHistory, setChatHistory) => {
+export const formatForm = async (event, setProcessing, question, processingMessage, handleSend, setPersonalInfo, chatHistory, setChatHistory) => {
   event.preventDefault();
   setProcessing(true);
 
-  let formattedString = `${questionRef.current.message}\nAdditional Information:\n`;
+  let formattedString = `${question}\nAdditional Information:\n`;
   
   processingMessage.forEach(({ description, input = '' }) => {
     formattedString += `${description}: ${input}\n`;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function HealthForm({ question, processingMessage, setProcessingMessage, formatForm }) {
+function HealthForm({question, processingMessage, setProcessingMessage, formatForm }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [inputValue, setInputValue] = useState(processingMessage[0]?.input);
   const button = 'duration-300 rounded-full ring ring-blue hover:bg-blue hover:text-white h-8 w-20'
@@ -19,7 +19,7 @@ function HealthForm({ question, processingMessage, setProcessingMessage, formatF
 
   return (
     <div className='flex flex-col items-end w-full text-white font-semibold mt-4 text-sm mb-8 w-4/5'>
-      <h1 className='bg-blue rounded-l-lg rounded-t-lg p-3'>{question.message}</h1>
+      <h1 className='bg-blue rounded-l-lg rounded-t-lg p-3'>{question}</h1>
       <form 
       onSubmit={(e) => formatForm(e)}
       className='bg-blue rounded-l-lg rounded-t-lg p-3 mt-3 w-5/6 p-4'

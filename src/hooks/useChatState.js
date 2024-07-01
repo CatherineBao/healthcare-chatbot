@@ -14,13 +14,7 @@ const useChatState = () => {
     }
   ]);
   const [processingMessage, setProcessingMessage] = useState([]);
-  const [question, setQuestion] = useState({
-    message: " ",
-    sentTime: "just now",
-    sender: "user",
-    direction: "outgoing",
-    position: "single"
-  });
+  const [question, setQuestion] = useState("");
 
   const questionRef = useRef(question);
   useEffect(() => {
