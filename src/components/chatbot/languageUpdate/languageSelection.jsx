@@ -41,12 +41,12 @@ function LanguageSelection({ question, setQuestion, setLanguage, handleProcessin
       position: "single"
     };  
 
-    return await processMessageToChatGPT([newMessage], "Adjust the message to be gramatically correct, keep the structure of the original sentence.", false);
+    return await processMessageToChatGPT([newMessage], "Adjust the message to be gramatically correct and in first person, keep the structure of the original sentence.", false);
   }
 
   return (
-    <div className='text-white font-semibold mt-4 text-sm mb-8 max-w-4/5'>
-    <Form onSubmit={handleSubmit} className='flex flex-col items-end bg-blue rounded-l-lg rounded-t-lg p-3 mt-3 max-w-5/6 p-6'>
+    <div className='text-white font-semibold mt-4 text-sm mb-8 w-4/5'>
+    <Form onSubmit={handleSubmit} className='flex flex-col items-end bg-blue rounded-l-lg rounded-t-lg p-3 mt-3 max-w-5/6 p-6 leading-loose'>
       <div>
         {question.map((part, index) => {
           if (part.type === 'text') {

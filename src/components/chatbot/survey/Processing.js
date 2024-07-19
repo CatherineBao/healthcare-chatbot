@@ -16,7 +16,8 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
       2. Provide 3-5 options that can replace that word so the question is more specific
       3. Specifically offer options to replace vague quantitation words (for example: a lot (give options of  multiple times a night, every hour, a couple of times a night))
       4. Replace colloquial descriptions with medical terminology 
-      5. Keep as much of the wording from the original question as possible
+      5. Keep the wording from the original question
+      6. Keep as much information from the original prompt as possible
 
       If the question is unrelated to diagnoses but related to healthcare, or if the inquiry is life-threatening/high risk (e.g., suicide, heart attack symptoms, poison control, stroke symptoms), respond with: %
 
@@ -43,14 +44,14 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
     const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
     console.log(returnMessage);
 
-    if (returnMessage === "$") {
+    if (returnMessage[0] === "$") {
       const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
       setProcessingNotification(true);
       setLanguage(true);
       handleSend(question, unrelatedInquiry, messages, setMessages, setTyping);
       return;
     }
-    else if (returnMessage === "%") {
+    else if (returnMessage[0] === "%") {
       const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poison, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
       setProcessingNotification(true);
       setLanguage(true);
