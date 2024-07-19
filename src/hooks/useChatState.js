@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 const useChatState = () => {
   const [typing, setTyping] = useState(false);
+  const [language, setLanguage] = useState(true);
   const [processing, setProcessing] = useState(true);
   const [processingNotification, setProcessingNotification] = useState(true);
   const [messages, setMessages] = useState([
@@ -14,6 +15,7 @@ const useChatState = () => {
     }
   ]);
   const [processingMessage, setProcessingMessage] = useState([]);
+  const [processingLanguage, setProcessingLanguage] = useState([]);
   const [question, setQuestion] = useState("");
 
   const questionRef = useRef(question);
@@ -28,8 +30,10 @@ const useChatState = () => {
 
   return {
     typing, setTyping,
+    language, setLanguage,
     processing, setProcessing,
     processingNotification, setProcessingNotification,
+    processingLanguage, setProcessingLanguage,
     messages, setMessages,
     processingMessage, setProcessingMessage,
     question, setQuestion,

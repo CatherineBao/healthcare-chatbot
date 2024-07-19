@@ -1,5 +1,71 @@
 import { processMessageToChatGPT } from '../GPTChatProcessor';
 
+export const handleLanguage = async (question, setProcessingLanguage, setLanguage, setProcessingNotification) => {
+  setProcessingNotification(false);
+  setLanguage(true);
+
+  const newMessage = {
+    message: question,
+    direction: 'outgoing',
+    sender: "user",
+    position: "single"
+  };
+
+  const systemContent = `
+    ### Instructions ###
+      Rewrite the question in the following way:
+      1. Extract phrases in the question can receive more elaboration to create a more detailed medical diagnosis
+      2. Provide 3-5 options that can replace that word so the question is more specific
+      3. Specifically offer options to replace vague quantitation words (for example: a lot (give options of  multiple times a night, every hour, a couple of times a night))
+      4. Replace colloquial descriptions with medical terminology 
+      5. Keep as much of the wording from the original question as possible
+
+      Formatting: ^Original Phrase, Option with more details, Optional with more details, Option with more details, etc.^
+      Provide 3-5 additional options for each highlighted phrase
+
+      Use the following examples for formatting and don't provide additional commentary:
+      Example 1:
+      Q: My knees hurt
+      A: My ^knees, left knee, right knee, inside knee^ ^hurts, throbbing pain, acute pain, sudden pain, sharp pain^
+
+      Example 2:
+      Q: I'm 30 years old and for the past few months, I've been really thirsty all the time and peeing a lot. I went to the doctor, and they ran some tests. My urine doesn't seem to get more concentrated, even when I stop drinking water and they give me some medication. I should mention that I've been on a mood stabilizer for bipolar disorder for several years.
+      A: I'm 30 years old and for the ^past few months, past 2 months, past 3 months, last several months^, I've been ^experiencing persistent thirst, having continuous thirst, feeling abnormally thirsty, having an insatiable thirst^ and ^urinating frequently, having a high frequency of urination, experiencing frequent micturition, needing to void urine multiple times per day^. I went to the doctor, and they ran some tests. My ^urine doesn't seem to get more concentrated, urine remains dilute, urine stays consistently clear, urine osmolarity is low^, even ^when I stop drinking water, despite reducing fluid intake, when I am subjected to water deprivation^ and they give me some medication. I should mention that I've been on a mood stabilizer for bipolar disorder for several years.
+
+      Any ideas on why I'm ^urinating so frequently, experiencing excessive urination, having an increased need to urinate, experiencing polyuria^?
+  `
+
+  try {
+    const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
+    console.log(returnMessage);
+
+    const regex = /\^([^^]+)\^/g;
+    let match;
+    const parts = [];
+    let lastIndex = 0;
+
+    while ((match = regex.exec(returnMessage)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push({ type: 'text', value: returnMessage.slice(lastIndex, match.index) });
+      }
+      parts.push({ type: 'dropdown', options: match[1].split(', ').map(option => option.trim()) });
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < returnMessage.length) {
+      parts.push({ type: 'text', value: returnMessage.slice(lastIndex) });
+    }
+
+    setProcessingLanguage(parts)
+    setProcessingNotification(true);
+    setLanguage(false);
+  } catch (error) {
+    console.error("Error processing message:", error);
+    setProcessingNotification(true);
+    setLanguage(false);
+  }
+}
+
 export const handleProcessing = async (message, setProcessingNotification, setProcessing, setQuestion, handleSend, setProcessingMessage) => {
   setProcessingNotification(false);
   setProcessing(true);

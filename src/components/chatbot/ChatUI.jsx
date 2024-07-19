@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator, InputToolbox } from '@chatscope/chat-ui-kit-react';
 import { useChatContext } from '../../components/ChatContext';
-import { handleProcessing, formatForm, handleSend } from './survey/Processing';
+import { handleProcessing, formatForm, handleSend, handleLanguage } from './survey/Processing';
 import HealthForm from './survey/Survey';
+import LanguageSelection from './languageUpdate/languageSelection'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faRobot } from "@fortawesome/free-solid-svg-icons";
 import '../../App.css';
@@ -11,8 +12,10 @@ import '../../index.css';
 function Chat() {
   const {
     typing, setTyping,
+    language, setLanguage,
     processing, setProcessing,
     processingNotification, setProcessingNotification,
+    processingLanguage, setProcessingLanguage,
     messages, setMessages,
     processingMessage, setProcessingMessage,
     question, setQuestion,
@@ -67,6 +70,11 @@ function Chat() {
             {messages.map((message, i) => {
               return <Message key={i} model={message} />
             })}
+            {!language ? (
+              <div className='w-full flex justify-end pr-5'>
+                <LanguageSelection question={processingLanguage} setQuestion = {setQuestion} setLanguage = {setLanguage}/>
+              </div>
+            ) : null}
             {!processing ? (
               <div className='w-full flex justify-end pr-5'>
                 <HealthForm
@@ -95,14 +103,12 @@ function Chat() {
               ) : null}
             </div>
             <div className='flex justify-center items-center w-full'>
-              <MessageInput 
-                className='w-full gap-5 justify-center items-center'
-                placeholder="Type message here" 
-                onSend={(message) => {
-                  message = message.replace(/<[^>]*>/g, '');
-                  handleProcessing(message, setProcessingNotification, setProcessing, setQuestion, 
-                    (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage);} 
-                  }
+            <MessageInput 
+              className='w-full gap-5 justify-center items-center'
+              placeholder="Type message here" 
+              onSend={async (message) => {
+                await handleLanguage(message, setProcessingLanguage, setLanguage, setProcessingNotification);
+              }} 
                 attachButton={false}
               />
               <FontAwesomeIcon icon={faCaretDown} className='text-blue cursor-pointer' onClick={scrollToBottom}/>
