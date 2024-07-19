@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { processMessageToChatGPT } from '../GPTChatProcessor';
 
-function LanguageSelection({ question, setQuestion, setLanguage}) {
+function LanguageSelection({ question, setQuestion, setLanguage, handleProcessing}) {
   const [selectedValues, setSelectedValues] = useState(
     question.map((part) => (part.type === 'dropdown' ? '' : null))
   );
@@ -24,10 +24,13 @@ function LanguageSelection({ question, setQuestion, setLanguage}) {
         finalString += selectedValues[index];
       }
     });
+
+    const newQuestion = await adjustGrammar(finalString);
+    setQuestion(newQuestion);
+    console.log(newQuestion);
     setLanguage(true);
     
-    // await handleProcessing(await adjustGrammar(finalString), setProcessingNotification, setProcessing, setQuestion, 
-    //   (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage);
+    handleProcessing(newQuestion)
   };
 
   async function adjustGrammar(question) {
@@ -42,7 +45,8 @@ function LanguageSelection({ question, setQuestion, setLanguage}) {
   }
 
   return (
-    <Form onSubmit={handleSubmit} className='flex flex-col items-end'>
+    <div className='text-white font-semibold mt-4 text-sm mb-8 max-w-4/5'>
+    <Form onSubmit={handleSubmit} className='flex flex-col items-end bg-blue rounded-l-lg rounded-t-lg p-3 mt-3 max-w-5/6 p-6'>
       <div>
         {question.map((part, index) => {
           if (part.type === 'text') {
@@ -53,6 +57,7 @@ function LanguageSelection({ question, setQuestion, setLanguage}) {
                 key={index}
                 value={selectedValues[index]}
                 onChange={(e) => handleChange(index, e.target.value)}
+                className='text-dark-blue'
               >
                 {part.options.map((option, i) => (
                   <option key={i} value={option}>{option}</option>
@@ -62,8 +67,9 @@ function LanguageSelection({ question, setQuestion, setLanguage}) {
           }
         })}
       </div>
-      <Button type="submit">Submit</Button>
+      <Button type="submit" className='duration-300 rounded-full ring ring-white hover:bg-white hover:text-blue h-8 w-20 mt-5'>Submit</Button>
     </Form>
+    </div>
   );
 }
 

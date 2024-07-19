@@ -72,7 +72,8 @@ function Chat() {
             })}
             {!language ? (
               <div className='w-full flex justify-end pr-5'>
-                <LanguageSelection question={processingLanguage} setQuestion = {setQuestion} setLanguage = {setLanguage}/>
+                <LanguageSelection question={processingLanguage} setQuestion = {setQuestion} setLanguage = {setLanguage} handleProcessing = {(q) => handleProcessing(q, setProcessingNotification, setProcessing, setQuestion, 
+                  (msg, sysContent) => handleSend(msg, sysContent, messages, setMessages, setTyping), setProcessingMessage)}/>
               </div>
             ) : null}
             {!processing ? (
@@ -107,7 +108,7 @@ function Chat() {
               className='w-full gap-5 justify-center items-center'
               placeholder="Type message here" 
               onSend={async (message) => {
-                await handleLanguage(message, setProcessingLanguage, setLanguage, setProcessingNotification);
+                await handleLanguage(message, setProcessingLanguage, setLanguage, setProcessingNotification, messages, setMessages, setTyping);
               }} 
                 attachButton={false}
               />

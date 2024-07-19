@@ -1,9 +1,7 @@
 import { processMessageToChatGPT } from '../GPTChatProcessor';
 
-export const handleLanguage = async (question, setProcessingLanguage, setLanguage, setProcessingNotification) => {
+export const handleLanguage = async (question, setProcessingLanguage, setLanguage, setProcessingNotification, messages, setMessages, setTyping) => {
   setProcessingNotification(false);
-  setLanguage(true);
-
   const newMessage = {
     message: question,
     direction: 'outgoing',
@@ -19,6 +17,12 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
       3. Specifically offer options to replace vague quantitation words (for example: a lot (give options of  multiple times a night, every hour, a couple of times a night))
       4. Replace colloquial descriptions with medical terminology 
       5. Keep as much of the wording from the original question as possible
+
+      If the question is unrelated to diagnoses but related to healthcare, or if the inquiry is life-threatening/high risk (e.g., suicide, heart attack symptoms, poison control, stroke symptoms), respond with: %
+
+      If the question is unrelated to healthcare, respond with: $
+
+      For life-threatening/high-risk diagnosis inquiries, respond with: %
 
       Formatting: ^Original Phrase, Option with more details, Optional with more details, Option with more details, etc.^
       Provide 3-5 additional options for each highlighted phrase
@@ -38,6 +42,21 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
   try {
     const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
     console.log(returnMessage);
+
+    if (returnMessage === "$") {
+      const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
+      setProcessingNotification(true);
+      setLanguage(true);
+      handleSend(question, unrelatedInquiry, messages, setMessages, setTyping);
+      return;
+    }
+    else if (returnMessage === "%") {
+      const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poison, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
+      setProcessingNotification(true);
+      setLanguage(true);
+      handleSend(question, nondiagnosesInquiry, messages, setMessages, setTyping);
+      return;
+    }
 
     const regex = /\^([^^]+)\^/g;
     let match;
@@ -62,7 +81,6 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
   } catch (error) {
     console.error("Error processing message:", error);
     setProcessingNotification(true);
-    setLanguage(false);
   }
 }
 
@@ -100,12 +118,6 @@ If the question is related to diagnoses (including mental health indications lik
 ^topic
 Example: Location of pain: Is the pain in one knee or both knees?^Previous injuries: Have you had any previous injuries to your knees?
 
-If the question is unrelated to diagnoses but related to healthcare, or if the inquiry is life-threatening/high risk (e.g., suicide, heart attack symptoms, poison control, stroke symptoms), respond with: %
-
-If the question is unrelated to healthcare, respond with: $
-
-For life-threatening/high-risk diagnosis inquiries, respond with: %
-
 Notes:
 
 Don’t include any additional commentary or formatting outside of specifications.
@@ -118,19 +130,6 @@ Don't ask for information the user has already provided.
   try {
     const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
     console.log(returnMessage);
-
-    if (returnMessage[0] === "$") {
-      const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
-      setProcessingNotification(true);
-      handleSend(message, unrelatedInquiry);
-      return;
-    }
-    else if (returnMessage[0] === "%") {
-      const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poison, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
-      setProcessingNotification(true);
-      handleSend(message, nondiagnosesInquiry);
-      return;
-    }
     
     const individualQuestions = returnMessage.split("^").map(item => {
       const [label, description] = item.split(":");
