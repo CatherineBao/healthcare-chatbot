@@ -108,7 +108,7 @@ function Chat() {
               className='w-full gap-5 justify-center items-center'
               placeholder="Type message here" 
               onSend={async (message) => {
-                await handleLanguage(message, setProcessingLanguage, setLanguage, setProcessingNotification, messages, setMessages, setTyping);
+                await handleLanguage(message, setProcessingLanguage, setLanguage, setProcessingNotification, messages, setMessages, setTyping, setProcessing);
               }} 
                 attachButton={false}
               />

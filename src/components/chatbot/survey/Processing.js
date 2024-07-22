@@ -1,7 +1,57 @@
 import { processMessageToChatGPT } from '../GPTChatProcessor';
 
-export const handleLanguage = async (question, setProcessingLanguage, setLanguage, setProcessingNotification, messages, setMessages, setTyping) => {
+export const preProcessing = async(question, setProcessingNotification, messages, setMessages, setTyping, setLanguage, handleSend) => {
+  {
+    const newMessage = {
+      message: question,
+      direction: 'outgoing',
+      sender: "user",
+      position: "single"
+    };
+  
+    const systemContent = `
+        If the question is unrelated to healthcare, respond with: $
+
+        Otherwise return: <3
+    `;
+
+    try {
+      const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
+      console.log(returnMessage);
+  
+      if (returnMessage[0] === "$") {
+        const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
+        setProcessingNotification(true);
+        setLanguage(true);
+        handleSend(question, unrelatedInquiry, messages, setMessages, setTyping);
+        return true;
+      }
+      else if (returnMessage[0] === "%") {
+        const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poison, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
+        setProcessingNotification(true);
+        setLanguage(true);
+        handleSend(question, nondiagnosesInquiry, messages, setMessages, setTyping);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error processing message:", error);
+    }
+  }
+}
+
+export const handleLanguage = async (question, setProcessingLanguage, setLanguage, setProcessingNotification, messages, setMessages, setTyping, setProcessing) => {
   setProcessingNotification(false);
+  setProcessing(true);
+
+  const preProcessed = await preProcessing(question, setProcessingNotification, messages, setMessages, setTyping, setLanguage, handleSend);
+
+  if (preProcessed) {
+    console.log("hit");
+    return;
+  }
+
   const newMessage = {
     message: question,
     direction: 'outgoing',
@@ -18,12 +68,6 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
       4. Replace colloquial descriptions with medical terminology 
       5. Keep the wording from the original question
       6. Keep as much information from the original prompt as possible
-
-      If the question is unrelated to diagnoses but related to healthcare, or if the inquiry is life-threatening/high risk (e.g., suicide, heart attack symptoms, poison control, stroke symptoms), respond with: %
-
-      If the question is unrelated to healthcare, respond with: $
-
-      For life-threatening/high-risk diagnosis inquiries, respond with: %
 
       Formatting: ^Original Phrase, Option with more details, Optional with more details, Option with more details, etc.^
       Provide 3-5 additional options for each highlighted phrase
@@ -43,21 +87,6 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
   try {
     const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
     console.log(returnMessage);
-
-    if (returnMessage[0] === "$") {
-      const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
-      setProcessingNotification(true);
-      setLanguage(true);
-      handleSend(question, unrelatedInquiry, messages, setMessages, setTyping);
-      return;
-    }
-    else if (returnMessage[0] === "%") {
-      const nondiagnosesInquiry = "Respond with a literacy that most high school graduates can understand. If the medical inquiry needs immediate attention (suicide, heart attack, stroke, poison, etc.) provide a hotline for the user to call (suicide hotline, poison control, 911, etc.)\n";
-      setProcessingNotification(true);
-      setLanguage(true);
-      handleSend(question, nondiagnosesInquiry, messages, setMessages, setTyping);
-      return;
-    }
 
     const regex = /\^([^^]+)\^/g;
     let match;

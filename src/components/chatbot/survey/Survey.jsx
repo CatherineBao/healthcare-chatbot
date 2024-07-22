@@ -19,10 +19,10 @@ function HealthForm({question, processingMessage, setProcessingMessage, formatFo
 
   return (
     <div className='flex flex-col items-end w-full text-white font-semibold mt-4 text-sm mb-8 w-4/5'>
-      <h1 className='bg-blue rounded-l-lg rounded-t-lg p-3'>{question}</h1>
+      <h1 className='bg-blue rounded-l-lg rounded-t-lg p-3 max-w-[80%]'>{question}</h1>
       <form 
       onSubmit={(e) => formatForm(e)}
-      className='bg-blue rounded-l-lg rounded-t-lg p-3 mt-3 w-5/6 p-4'
+      className='bg-blue rounded-l-lg rounded-t-lg p-3 mt-3 w-[80%] p-4'
       >
         <div className='p-3 bg-white rounded-lg text-blue'>
           <label className='font-bold mb-3 uppercase text-lg'>
