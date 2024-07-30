@@ -9,7 +9,7 @@ export const processMessageToChatGPT = async (chatMessages, systemContent, appen
   }));
 
   const apiRequestBody = {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     temperature: 0.3,
     messages: [
       { role: "system", content: systemContent },

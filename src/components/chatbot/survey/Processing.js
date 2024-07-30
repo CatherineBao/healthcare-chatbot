@@ -2,22 +2,35 @@ import { processMessageToChatGPT } from '../GPTChatProcessor';
 
 export const preProcessing = async(question, setProcessingNotification, messages, setMessages, setTyping, setLanguage, handleSend) => {
   {
+
+    const instructions = `
+      If the question is unrelated to healthcare, respond with $
+      If the question involves medication, does NOT contain personal healthcare questions, involves suicide, involves poisen, immediately life threatening physical wounds, respond with %*
+      Otherwise, return: <3
+      Do not add any additional commentary or respond with anything else. 
+      Example:
+      Q: Hello!
+      A: $
+      Q: What is the difference between COVID and the flu?
+      A: %
+       ${question}
+  `;
+
     const newMessage = {
-      message: question,
+      message: instructions,
       direction: 'outgoing',
       sender: "user",
       position: "single"
     };
   
     const systemContent = `
-        If the question is unrelated to healthcare, respond with: $
-
-        Otherwise return: <3
+      Only respond with $, %, or <3 regardless of the message to sort the message into different categories. 
     `;
 
     try {
       const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
       console.log(returnMessage);
+
   
       if (returnMessage[0] === "$") {
         const unrelatedInquiry = "Respond that you can only help with healthcare-related topics and prompt the user to ask a different question. Do not respond to the user's question. Use a polite and apologetic tone.";
@@ -48,7 +61,6 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
   const preProcessed = await preProcessing(question, setProcessingNotification, messages, setMessages, setTyping, setLanguage, handleSend);
 
   if (preProcessed) {
-    console.log("hit");
     return;
   }
 
@@ -60,33 +72,21 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
   };
 
   const systemContent = `
-    ### Instructions ###
-      Rewrite the question in the following way:
-      1. Extract phrases in the question can receive more elaboration to create a more detailed medical diagnosis
-      2. Provide 3-5 options that can replace that word so the question is more specific
-      3. Specifically offer options to replace vague quantitation words (for example: a lot (give options of  multiple times a night, every hour, a couple of times a night))
-      4. Replace colloquial descriptions with medical terminology 
-      5. Keep the wording from the original question
-      6. Keep as much information from the original prompt as possible
+    Provide additional options for phrases that could need more details to create a more accurate medical diagnosis:
 
-      Formatting: ^Original Phrase, Option with more details, Optional with more details, Option with more details, etc.^
-      Provide 3-5 additional options for each highlighted phrase
+    1. Add 2-5 additional options to make the phrase more specific with medical terminology 
+    2. Only add a description for terms that are not commonly used
 
-      Use the following examples for formatting and don't provide additional commentary:
-      Example 1:
-      Q: My knees hurt
-      A: My ^knees, left knee, right knee, inside knee^ ^hurts, throbbing pain, acute pain, sudden pain, sharp pain^
-
-      Example 2:
-      Q: I'm 30 years old and for the past few months, I've been really thirsty all the time and peeing a lot. I went to the doctor, and they ran some tests. My urine doesn't seem to get more concentrated, even when I stop drinking water and they give me some medication. I should mention that I've been on a mood stabilizer for bipolar disorder for several years.
-      A: I'm 30 years old and for the ^past few months, past 2 months, past 3 months, last several months^, I've been ^experiencing persistent thirst, having continuous thirst, feeling abnormally thirsty, having an insatiable thirst^ and ^urinating frequently, having a high frequency of urination, experiencing frequent micturition, needing to void urine multiple times per day^. I went to the doctor, and they ran some tests. My ^urine doesn't seem to get more concentrated, urine remains dilute, urine stays consistently clear, urine osmolarity is low^, even ^when I stop drinking water, despite reducing fluid intake, when I am subjected to water deprivation^ and they give me some medication. I should mention that I've been on a mood stabilizer for bipolar disorder for several years.
-
-      Any ideas on why I'm ^urinating so frequently, experiencing excessive urination, having an increased need to urinate, experiencing polyuria^?
-  `
-
+    Formatting Instructions: Directly incorporate the additional options into the original message. Do not diagnos the user. Only provide the following information.
+    Insert the options into the original prompt using - original text ^original phrase* new option (description)* new option (description)* new option (description)* etc.^ original text ^original phrase* new option (description)* new option (description)* etc.^
+    Example - Q: My knees hurt A: My ^knees* front knee (The front part of the knee, often involving the patella and surrounding tendons)* back knee (The rear part of the knee, involving the hamstring tendons and sometimes the popliteal area)* outer knee (The lateral side of the knee, often associated with issues like iliotibial band syndrome)* inner knee (The medial side of the knee, frequently linked to conditions like medial meniscus tears or MCL injuries)^ ^hurts* throbbing pain* acute pain* sudden pain* sharp pain* dull ache (A continuous, mild to moderate pain that is persistent and doesn't fluctuate much in intensity)* burning pain (A sensation that feels like a burn, often indicative of nerve involvement or inflammation)* stabbing pain (A very intense, sudden pain that feels like a sharp object is being driven into the knee)* cramping pain (A pain that feels like a muscle spasm or a charley horse, often accompanied by tightness)^
+    
+    Use the following example for formatting and content reference:
+    Q: A: I'm 30 years old and for the past few months, I've been really thirsty all the time and peeing a lot. I went to the doctor, and they ran some tests. My urine doesn't seem to get more concentrated, even when I stop drinking water and they give me some medication. I should mention that I've been on a mood stabilizer for bipolar disorder for several years. Any ideas on why I'm peeing so often?
+    A: I'm 30 years old and for the ^past few months* past 2 months* past 3 months* last several months* recent months^, I've been ^really thirsty all the time* experiencing persistent thirst* having continuous thirst* feeling abnormally thirsty* excessively thirsty^ and ^peeing a lot* urinating frequently* having a high frequency of urination* experiencing frequent micturition (medical term for frequent urination)* needing to void urine multiple times per day^. I went to the doctor, and they ran some tests. My ^urine doesn't seem to get more concentrated* urine remains dilute* urine stays consistently clear* urine osmolarity is low (specific term indicating low concentration of particles in urine)* urine specific gravity is low (specific term indicating low density of urine)^, ^when I stop drinking water* despite reducing fluid intake* when I am subjected to water deprivation (medical term for the test involving no water intake)* during periods of fluid restriction* under conditions of fluid abstinence^ and they give me some medication. I should mention that I've been on a mood stabilizer for bipolar disorder for several years. Any ideas on why I'm ^peeing so often* urinating so frequently* experiencing excessive urination* having an increased need to urinate* experiencing polyuria (medical term for excessive urination)^?
+`
   try {
     const returnMessage = await processMessageToChatGPT([newMessage], systemContent, false);
-    console.log(returnMessage);
 
     const regex = /\^([^^]+)\^/g;
     let match;
@@ -97,7 +97,7 @@ export const handleLanguage = async (question, setProcessingLanguage, setLanguag
       if (match.index > lastIndex) {
         parts.push({ type: 'text', value: returnMessage.slice(lastIndex, match.index) });
       }
-      parts.push({ type: 'dropdown', options: match[1].split(', ').map(option => option.trim()) });
+      parts.push({ type: 'dropdown', options: match[1].split('*').map(option => option.trim()) });
       lastIndex = regex.lastIndex;
     }
 
@@ -127,7 +127,7 @@ export const handleProcessing = async (message, setProcessingNotification, setPr
   };
 
   const systemContent = `
-Create a list of additional information, questions, or symptoms that a doctor will ask to create a more accurate diagnosis. These should cover age, gender, race, other symptoms, and relevant details.
+Create a list of additional information, questions, or symptoms that a doctor will ask to create a more accurate diagnosis. 
 
 When the patient mentions visiting or consulting a doctor, you must ask for any exam results (vitals, blood pressure, temperature, pulse, respiration, etc.).
 

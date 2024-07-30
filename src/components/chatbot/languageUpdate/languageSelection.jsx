@@ -49,7 +49,7 @@ function LanguageSelection({ question, setQuestion, setLanguage, handleProcessin
       position: "single"
     };
 
-    return await processMessageToChatGPT([newMessage], "Adjust the message to be grammatically correct and in the first person, keep the structure of the original sentence.", false);
+    return await processMessageToChatGPT([newMessage], "Adjust the message to be grammatically correct and in the first person, keep the structure of the original sentence. Remove the additional information descripting terms in parentheses.", false);
   }
 
   return (
@@ -61,16 +61,16 @@ function LanguageSelection({ question, setQuestion, setLanguage, handleProcessin
               return <span key={index}>{part.value}</span>;
             } else if (part.type === 'dropdown') {
               return (
-                <Form.Select
+                <select
                   key={index}
                   value={selectedValues[index]}
                   onChange={(e) => handleChange(index, e.target.value)}
-                  className='text-dark-blue p-2 rounded-md'
+                  className='text-dark-blue p-2 rounded-md max-w-60'
                 >
                   {part.options.map((option, i) => (
                     <option key={i} value={option}>{option}</option>
                   ))}
-                </Form.Select>
+                </select>
               );
             }
             return null;
